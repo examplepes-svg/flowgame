@@ -1,0 +1,867 @@
+/* ============================================================
+   КАРТА МИРА — стили
+   ============================================================ */
+
+#world-map-overlay {
+  position: fixed;
+  inset: 0;
+  background: #1a1a2e;
+  z-index: 500;
+  display: none;
+  overflow: hidden;
+  user-select: none;
+}
+
+#world-map-overlay.active {
+  display: block;
+}
+
+.world-map-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.world-map-header {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 32px;
+  background: rgba(30, 20, 10, 0.85);
+  border: 2px solid #c9a227;
+  border-radius: 40px;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.world-map-title {
+  font-size: 20px;
+  color: #ffd93d;
+  letter-spacing: 2px;
+}
+
+.world-map-progress {
+  font-size: 14px;
+  color: #ccc;
+}
+
+.world-map-back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 64px;
+  height: 64px;
+  z-index: 100;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.world-map-back:hover {
+  transform: scale(1.1);
+}
+
+.world-map-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+
+/* ============================================================
+   ТУМАНЫ ПОВЕРХ КАРТЫ МИРА
+   ============================================================ */
+
+.map-fog {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 5;
+  pointer-events: none;
+  animation:
+    fogPulse 5s ease-in-out infinite,
+    fogDrift 18s ease-in-out infinite;
+  will-change: opacity, transform;
+}
+
+@keyframes fogPulse {
+  0%, 100% { opacity: 0.85; }
+  50% { opacity: 1; }
+}
+
+@keyframes fogDrift {
+  0%, 100% { transform: translateX(0) translateY(0); }
+  50% { transform: translateX(12px) translateY(-5px); }
+}
+
+.map-fog-wave-3 {
+  animation:
+    fogPulse 4s ease-in-out infinite,
+    fogDrift 14s ease-in-out infinite,
+    fogScale 10s ease-in-out infinite;
+}
+
+@keyframes fogScale {
+  0%, 100% { transform: translateX(0) translateY(0) scale(1); }
+  50% { transform: translateX(10px) translateY(-4px) scale(1.03); }
+}
+
+.map-fog.revealing {
+  animation: fogReveal 2.5s ease-out forwards !important;
+}
+
+@keyframes fogReveal {
+  0% {
+    opacity: 0.95;
+    filter: blur(0px);
+    transform: translateX(0) scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    filter: blur(8px);
+    transform: translateX(20px) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    filter: blur(20px);
+    transform: translateX(40px) scale(1.15);
+  }
+}
+
+/* ============================================================
+   РЕГИОН — КНОПКА НА КАРТЕ
+   ============================================================ */
+
+.region-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.region-node:hover {
+  transform: translate(-50%, -50%) scale(1.08);
+}
+
+.region-node.locked {
+  cursor: not-allowed;
+}
+
+.region-mini-map {
+  width: 180px;
+  height: 120px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 3px solid #c9a227;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.7);
+  position: relative;
+  background: #1a1a2e;
+}
+
+.region-mini-map img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Скрытая мини-карта (для закрытых регионов) */
+.region-mini-map-hidden {
+  border-color: #555;
+  background: linear-gradient(135deg, #1a1a2e, #0f0f1e);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   ФЛАГИ РЕГИОНОВ (PNG)
+   ============================================================ */
+
+.region-flag {
+  position: absolute;
+  top: -16px;
+  left: -16px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid #c9a227;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+.region-flag img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Неизвестный регион — чёрный круг с ? */
+.region-flag-unknown {
+  background: #1a1a2e;
+  color: #ffd93d;
+  font-size: 26px;
+  font-weight: bold;
+  border-color: #666;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ============================================================
+   НАЗВАНИЯ РЕГИОНОВ
+   ============================================================ */
+
+.region-name {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(30, 20, 10, 0.9);
+  border: 2px solid #c9a227;
+  border-radius: 20px;
+  padding: 4px 16px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #ffd93d;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  z-index: 10;
+}
+
+/* Название закрытого региона — знак вопроса */
+.region-name-unknown {
+  color: #888;
+  border-color: #666;
+  background: rgba(30, 30, 50, 0.9);
+  font-size: 18px;
+  padding: 2px 18px;
+}
+
+.region-progress {
+  position: absolute;
+  bottom: -52px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 12px;
+  border-radius: 10px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.region-lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  z-index: 8;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.8));
+}
+
+/* ============================================================
+   ФИШКА ИГРОКА
+   ============================================================ */
+
+.player-pawn {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  transition: left 1s cubic-bezier(0.4, 0, 0.2, 1),
+              top 1s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.7));
+  animation: pawnFloat 2s ease-in-out infinite;
+}
+
+@keyframes pawnFloat {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+  50% { transform: translate(-50%, -50%) translateY(-6px); }
+}
+
+/* ============================================================
+   МОДАЛКА ВЫБОРА ФИШКИ
+   ============================================================ */
+
+.pawn-select-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 600;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.pawn-select-overlay.active {
+  display: flex;
+}
+
+.pawn-select-title {
+  font-size: 32px;
+  color: #ffd93d;
+  font-weight: bold;
+  margin-bottom: 12px;
+  text-align: center;
+  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+}
+
+.pawn-select-subtitle {
+  font-size: 16px;
+  color: #ccc;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.pawn-select-choices {
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pawn-choice {
+  background: rgba(30, 20, 10, 0.9);
+  border: 3px solid #c9a227;
+  border-radius: 24px;
+  padding: 24px;
+  cursor: pointer;
+  transition: transform 0.2s, border-color 0.2s;
+  text-align: center;
+  width: 220px;
+}
+
+.pawn-choice:hover {
+  transform: translateY(-6px);
+  border-color: #ffd93d;
+  box-shadow: 0 12px 30px rgba(255, 217, 61, 0.4);
+}
+
+.pawn-choice img {
+  width: 160px;
+  height: 160px;
+  object-fit: contain;
+  margin-bottom: 12px;
+}
+
+.pawn-choice-name {
+  font-size: 18px;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ============================================================
+   ЭКРАН РЕГИОНА
+   ============================================================ */
+
+#region-overlay {
+  position: fixed;
+  inset: 0;
+  background: #1a1a2e;
+  z-index: 500;
+  display: none;
+  overflow: hidden;
+}
+
+#region-overlay.active {
+  display: block;
+}
+
+.region-screen-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(3px) brightness(0.6);
+  z-index: 1;
+}
+
+.region-screen-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.region-screen-header {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 32px;
+  background: rgba(30, 20, 10, 0.9);
+  border: 2px solid #c9a227;
+  border-radius: 40px;
+  color: #fff;
+  font-weight: bold;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+}
+
+.region-screen-flag { font-size: 32px; }
+.region-screen-title { font-size: 22px; color: #ffd93d; letter-spacing: 2px; }
+.region-screen-progress { font-size: 14px; color: #ccc; }
+
+.region-nodes {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+}
+
+.region-node-level {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.region-node-level:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.region-node-level.locked {
+  cursor: not-allowed;
+  filter: grayscale(0.8) brightness(0.6);
+}
+
+.region-node-level.current {
+  animation: nodePulse 1.5s infinite;
+}
+
+@keyframes nodePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.15); }
+}
+
+.node-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+}
+
+.node-number {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+}
+
+.region-screen-back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+  z-index: 10;
+  transition: transform 0.2s;
+}
+
+.region-screen-back:hover { transform: scale(1.1); }
+
+.region-screen-back img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.6));
+}
+
+/* ============================================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .world-map-header { padding: 8px 20px; gap: 12px; top: 12px; }
+  .world-map-title { font-size: 16px; }
+  .world-map-progress { font-size: 12px; }
+  .world-map-back { width: 48px; height: 48px; top: 12px; left: 12px; }
+  .region-mini-map { width: 110px; height: 75px; border-width: 2px; }
+  .region-flag {
+    width: 32px; height: 32px; font-size: 18px;
+    top: -10px; left: -10px; border-width: 2px;
+  }
+  .region-flag-unknown { font-size: 20px; }
+  .region-name { font-size: 10px; padding: 2px 10px; bottom: -24px; }
+  .region-name-unknown { font-size: 14px; padding: 1px 12px; }
+  .region-progress { font-size: 9px; bottom: -40px; }
+  .region-lock { width: 40px; height: 40px; }
+  .player-pawn { width: 60px; height: 60px; }
+  .pawn-choice { width: 160px; padding: 16px; }
+  .pawn-choice img { width: 100px; height: 100px; }
+  .pawn-select-title { font-size: 22px; }
+  .pawn-select-subtitle { font-size: 13px; margin-bottom: 24px; }
+  .region-screen-header { padding: 8px 20px; gap: 10px; }
+  .region-screen-flag { font-size: 22px; }
+  .region-screen-title { font-size: 16px; }
+  .region-screen-progress { font-size: 12px; }
+  .region-node-level { width: 55px; height: 55px; }
+  .node-number { font-size: 18px; }
+  .region-screen-back { width: 48px; height: 48px; }
+}
+/* ============================================================
+   ЭКРАН БОССА
+   ============================================================ */
+
+#boss-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 700;
+  display: none;
+  overflow: hidden;
+}
+
+#boss-overlay.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.boss-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px) brightness(0.4);
+  z-index: 1;
+}
+
+.boss-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 2;
+}
+
+.boss-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+  animation: bossEnter 0.6s ease-out;
+}
+
+@keyframes bossEnter {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.boss-image-wrap {
+  width: 320px;
+  height: 320px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 10px 40px rgba(255, 100, 100, 0.6));
+  animation: bossFloat 3s ease-in-out infinite;
+}
+
+@keyframes bossFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.boss-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.boss-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: #ffd93d;
+  text-align: center;
+  margin-bottom: 8px;
+  text-shadow: 0 4px 20px rgba(255, 200, 60, 0.8);
+  animation: bossGlow 2s ease-in-out infinite;
+}
+
+@keyframes bossGlow {
+  0%, 100% { text-shadow: 0 4px 20px rgba(255, 200, 60, 0.6); }
+  50% { text-shadow: 0 4px 30px rgba(255, 200, 60, 1); }
+}
+
+.boss-subtitle {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.boss-rewards {
+  background: rgba(30, 20, 10, 0.9);
+  border: 2px solid #c9a227;
+  border-radius: 16px;
+  padding: 16px 24px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.boss-rewards-title {
+  font-size: 14px;
+  color: #ffd93d;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.boss-rewards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.boss-reward-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+}
+
+.boss-reward-icon {
+  font-size: 22px;
+}
+
+.boss-reward-text {
+  font-size: 16px;
+  color: #fff;
+  font-weight: bold;
+}
+
+.boss-claim-btn {
+  background: linear-gradient(180deg, #ffd93d, #f39c12);
+  color: #1a1a2e;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 40px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 6px 0 #a37700, 0 8px 20px rgba(255, 200, 60, 0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.boss-claim-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #a37700;
+}
+
+/* ============================================================
+   ЭКРАН ПОБЕДЫ РЕГИОНА
+   ============================================================ */
+
+#region-victory-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 800;
+  display: none;
+  overflow: hidden;
+}
+
+#region-victory-overlay.active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.region-victory-bg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px) brightness(0.3);
+  z-index: 1;
+}
+
+.region-victory-dim {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 2;
+}
+
+.region-victory-confetti {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  top: -20px;
+  border-radius: 2px;
+  animation: confettiFall linear infinite;
+}
+
+@keyframes confettiFall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.region-victory-content {
+  position: relative;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  max-width: 500px;
+  width: 100%;
+  animation: regionVictoryEnter 0.8s ease-out;
+}
+
+@keyframes regionVictoryEnter {
+  0% { opacity: 0; transform: scale(0.7); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.region-victory-title {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ffd93d;
+  text-align: center;
+  margin-bottom: 8px;
+  text-shadow: 0 4px 30px rgba(255, 200, 60, 1);
+  animation: titleGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.region-victory-subtitle {
+  font-size: 15px;
+  color: #ccc;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.region-victory-rewards {
+  background: rgba(30, 20, 10, 0.95);
+  border: 3px solid #c9a227;
+  border-radius: 20px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  width: 100%;
+  max-width: 380px;
+}
+
+.region-victory-rewards-title {
+  font-size: 15px;
+  color: #ffd93d;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 16px;
+  letter-spacing: 1px;
+}
+
+.region-victory-reward {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 12px;
+  margin-bottom: 8px;
+}
+
+.region-victory-reward:last-child {
+  margin-bottom: 0;
+}
+
+.region-victory-reward-icon {
+  font-size: 32px;
+  width: 40px;
+  text-align: center;
+}
+
+.region-victory-reward-info {
+  flex: 1;
+  text-align: left;
+}
+
+.region-victory-reward-name {
+  font-size: 15px;
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.region-victory-reward-desc {
+  font-size: 12px;
+  color: #aaa;
+}
+
+.region-victory-btn {
+  background: linear-gradient(180deg, #5fd175, #4caf50);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 14px 50px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 6px 0 #2e7d32, 0 8px 20px rgba(46, 204, 113, 0.4);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.region-victory-btn:active {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #2e7d32;
+}
+
+/* Мобильная адаптация */
+@media (max-width: 768px) {
+  .boss-image-wrap { width: 220px; height: 220px; }
+  .boss-title { font-size: 20px; }
+  .boss-claim-btn { padding: 12px 30px; font-size: 16px; }
+  .region-victory-title { font-size: 24px; }
+  .region-victory-reward-icon { font-size: 26px; width: 32px; }
+  .region-victory-reward-name { font-size: 13px; }
+  .region-victory-btn { padding: 12px 40px; font-size: 16px; }
+}
